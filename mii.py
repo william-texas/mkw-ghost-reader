@@ -1,6 +1,10 @@
 from pkg_resources import parse_version
 import kaitaistruct
 from kaitaistruct import KaitaiStruct, KaitaiStream, BytesIO
+import binascii
+
+def hex_string(data):
+    return str(binascii.hexlify(data).upper())[2:-1]
 
 class Mii(KaitaiStruct):
     def __init__(self, _io, _parent=None, _root=None):
@@ -12,6 +16,10 @@ class Mii(KaitaiStruct):
     def _read(self):
         self.invalid = self._io.read_bits_int_be(1) != 0
         self.gender = self._io.read_bits_int_be(1) != 0
+        if self.gender == False:
+            self.gender = 'Male'
+        elif self.gender == True:
+            self.gender = 'Female'
         self.birth_month = self._io.read_bits_int_be(4)
         self.birth_day = self._io.read_bits_int_be(5)
         self.favorite_color = self._io.read_bits_int_be(4)
@@ -20,14 +28,8 @@ class Mii(KaitaiStruct):
         self.mii_name = (self._io.read_bytes(20)).decode(u"utf-16be")
         self.body_height = self._io.read_u1()
         self.body_weight = self._io.read_u1()
-        self.avatar_id = [None] * (4)
-        for i in range(4):
-            self.avatar_id[i] = self._io.read_u1()
-
-        self.client_id = [None] * (4)
-        for i in range(4):
-            self.client_id[i] = self._io.read_u1()
-
+        self.avatar_id = hex_string(self._io.read_bytes(4))
+        self.client_id = hex_string(self._io.read_bytes(4))
         self.face_type = self._io.read_bits_int_be(3)
         self.face_color = self._io.read_bits_int_be(3)
         self.facial_feature = self._io.read_bits_int_be(4)
@@ -81,5 +83,7 @@ class Mii(KaitaiStruct):
         self.unknown_11 = self._io.read_bits_int_be(1) != 0
         self._io.align_to_byte()
         self.creator_name = (self._io.read_bytes(20)).decode(u"utf-16be")
+        if self.creator_name == '\x00' * 10:
+            self.creator_name = 'Not Set'
 
 
