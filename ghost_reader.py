@@ -1,4 +1,5 @@
 import locale
+import sys
 from mkw_ghosts import CTGPGhosts, MkwGhosts
 import hashlib
 import requests
@@ -47,9 +48,12 @@ def clean_mii_name(name):
 	name, sep, garbgae = name.partition('\x00')
 	return name.lstrip()
 
+try:
+	filename = sys.argv[1]
+except IndexError:
+	filename = 'ghost.rkg'
 
-with open('ghost.rkg', 'rb') as file:
-
+with open(filename, 'rb') as file:
 	ghostbytes = file.read()
 	if ghostbytes[:4] == b'RKGD':
 		hasher.update(ghostbytes)
