@@ -42,9 +42,12 @@ def parse_shroomstrat(laps_driven, shrooms = []):
 def clean_mii_name(name):
 	name, sep, garbgae = name.partition('\x00')
 	return name.lstrip()
+try:
+	filename = sys.argv[1]
+except IndexError:
+	filename = 'ghost.rkg'
 
-
-with open('ghost.rkg', 'rb') as file:
+with open(filename, 'rb') as file:
 
 	ghostbytes = file.read()
 	if ghostbytes[:4] == b'RKGD':
@@ -86,24 +89,24 @@ with open('ghost.rkg', 'rb') as file:
 			print(f'CTGP Leaderboard Link: http://chadsoft.co.uk/time-trials/leaderboard/{hex_string(ghost.track_id.to_bytes(1, "big"))}/{ghost.track_sha1}/{str(ghost.category).zfill(2)}.html')
 			#print(f'CTGP Version: {ghost.ctgp_ver_1}.{str(ghost.ctgp_ver_2).zfill(2)}.{(ghost.ctgp_ver_3)}') This is incorrect
 			
-			
-			print(f'My Stuff Enabled: {ghost.my_stuff_enabled}')
-			print(f'My Stuff Used: {ghost.my_stuff_used}')
-			print(f'USB GameCube Enabled: {ghost.usb_gcn}')
-			print(f'Went Out of Bounds: {ghost.oob}')
-			print(f'Respawns: {ghost.respawns}')
-			print(f'Used Cannon: {ghost.cannoned}')
-			print(f'Potential Rapidfire: {ghost.rapid_fire}')
-			print(f'Has Mii Replaced: {ghost.mii_data_replaced}')
-			print(f'Has Name Replaced: {ghost.has_name_replaced}')
-
-			'''
-			print(ghost.footer_version)
-			print(ghost.ctgp_length)
-			print(ghost.ctgp_magic)
-			print(ghost.crc32)
-			print(hex(binascii.crc32(ghostbytes)))
-			'''
+			if ghost.my_stuff_enabled:
+				print(f'My Stuff Enabled: {ghost.my_stuff_enabled}')
+			if ghost.my_stuff_used:
+				print(f'My Stuff Used: {ghost.my_stuff_used}')
+			if ghost.usb_gcn:
+				print(f'USB GameCube Enabled: {ghost.usb_gcn}')
+			if ghost.oob:
+				print(f'Went Out of Bounds: {ghost.oob}')
+			if ghost.respawns:
+				print(f'Respawns: {ghost.respawns}')
+			if ghost.cannoned:	
+				print(f'Used Cannon: {ghost.cannoned}')
+			if ghost.rapid_fire:
+				print(f'Potential Rapidfire: {ghost.rapid_fire}')
+			if ghost.mii_data_replaced:
+				print(f'Has Mii Replaced: {ghost.mii_data_replaced}')
+			if ghost.has_name_replaced:	
+				print(f'Has Name Replaced: {ghost.has_name_replaced}')
 			
 		else:
 			print('This ghost does not appear to have any CTGP Metadata associated with it. Some extra information cannot be displayed.')
@@ -118,7 +121,9 @@ with open('ghost.rkg', 'rb') as file:
 		print('\nAdvanced Info:')
 		print(f'Mii CRC16 (CCITT-XModem): {crc16(miidata)}')
 		print(f'Ghost CRC32: {hex_string(binascii.crc32(ghostbytes[:-4]).to_bytes(4, "big"))}')
-		print(f'Is Mii CRC Correct: {crc16(miidata) == hex_string(ghost.crc16_mii)}')
-		print(f'Is Ghost CRC Correct: {binascii.crc32(ghostbytes[:-4]) == ghost.crc32}')
+		if not crc16(miidata) == hex_string(ghost.crc16_mii):
+			print(f'Mii CRC is not correct! {crc16(miidata)} - {hex_string(ghost.crc16_mii)}')
+		if not binascii.crc32(ghostbytes[:-4]) == ghost.crc32:
+			print(f'Ghost CRC is not correct!: {binascii.crc32(ghostbytes[:-4])} - {ghost.crc32}')
 		if is_ctgp:
 			print(f'CTGP Footer Version: v{ghost.footer_version}')
