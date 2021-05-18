@@ -4,6 +4,7 @@ import requests
 hasher = hashlib.sha1()
 from mii import Mii
 import io
+import sys
 import binascii
 import crcmod
 import struct
