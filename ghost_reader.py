@@ -1,3 +1,5 @@
+import locale
+import sys
 from mkw_ghosts import CTGPGhosts, MkwGhosts
 import hashlib
 import requests
@@ -31,8 +33,11 @@ def birthday(month, day):
 	if day == 0:
 		return 'Not Set'
 	else:
-		return str(month) + '/' + str(day)
-
+		lang, _ = locale.getlocale()
+		if lang == 'en_US':
+			return f'{month}/{day}'
+		return f'{day}/{month}'
+		
 def parse_shroomstrat(laps_driven, shrooms = []):
 	strategy = [0] * laps_driven
 	for shroom in shrooms:
@@ -49,7 +54,6 @@ except IndexError:
 	filename = 'ghost.rkg'
 
 with open(filename, 'rb') as file:
-
 	ghostbytes = file.read()
 	if ghostbytes[:4] == b'RKGD':
 		hasher.update(ghostbytes)
